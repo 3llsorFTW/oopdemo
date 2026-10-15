@@ -129,7 +129,6 @@ class DbObject:
                     case _:
                         raise TypeError(f"{this_obj} and {other_obj} can not be compared at this time.")
 
-
 @dataclass(kw_only=True)
 class WoType(DbObject):
     """
@@ -139,8 +138,6 @@ class WoType(DbObject):
     woName: str
     woType: str
     woDescr: str=None
-
-
 
 class WoInst(DbObject):
     """
