@@ -141,19 +141,34 @@ class WoType(DbObject):
     woDescr: str=None
 
 
+
 class WoInst(DbObject):
     """
     Class for workout instances - rows in the table WoInst.
     """
-    def __init__(self, rowAdded: datetime=None, rowUpdated: datetime=None, *, instId: str, instDatetime: str, instDur: int, woTypeId: int, woName: str, instNotes: str=None, externalDataProvider: dict[str, dict[str, Any]]=None):
+    def __init__(self, rowAdded: datetime=None, rowUpdated: datetime=None, *, instId: str, instDatetime: str | datetime, instDur: int, woTypeId: int, woName: str, instNotes: str=None, externalDataProvider: dict[str, dict[str, Any]]=None):
         super().__init__(rowAdded=rowAdded, rowUpdated=rowUpdated)
         self.instId = instId
-        self.instDatetime = datetime.fromisoformat(instDatetime)
+        self.instDatetime = instDatetime 
+        
         self.instDur = instDur
         self.woTypeId = woTypeId
         self.woName = woName
         self.instNotes = instNotes
         self.externalDataProvider = externalDataProvider
+
+    @property
+    def instDatetime(self) -> datetime:
+        return self._instDatetime
+
+    @instDatetime.setter
+    def instDatetime(self, value):
+        if isinstance(value, str):
+            self._instDatetime = datetime.fromisoformat(value)
+        elif isinstance(value, datetime):
+            self._instDatetime = value
+        else:
+            raise TypeError("instDatetime should be a string or datetime object.")
 
     def __repr__(self) -> str:
         return f"WoInst(instId={self.instId}, instDatetime={self.instDatetime}, instDur={self.instDur}, woTypeId={self.woTypeId}, woName={self.woName}, instNotes={self.instNotes}, externalMetadata={self.externalDataProvider})"
@@ -483,3 +498,30 @@ class MonthStats(PeriodStats):
     """
     month_nbr: int=None
     month_name: str=None
+
+
+# ==============================================================================
+# 3. TESTING CODE
+# ==============================================================================
+
+if __name__ == "__main__":
+    test_class: WoInst = WoInst(
+        instId="2026-262", 
+        instDatetime="2026-07-25T16:53:34+02:00", 
+        instDur=45, 
+        woTypeId=49, 
+        woName="Reformer", 
+        instNotes="Test note"
+    )
+
+    print("Skapat objekt:")
+    print(test_class.to_dict())
+
+    updates = {
+        "instId" : "2026-291",
+        "instNotes" : "Modified test note."
+    }
+    test_class.update_attr(updates)
+    
+    print("\nObjekt efter uppdatering via arv från DbObject:")
+    print(test_class.to_dict())
