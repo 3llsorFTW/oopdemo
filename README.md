@@ -9,7 +9,7 @@ Filen models.py är ett utdrag av ett större projekt - ett system för hanterin
 ### 1. Klasser och objekt
 Hela filen är uppbyggd kring objektorienterade datamodeller där klasser agerar mallar för systemets data.
 * **Definition av klasser:** Jag definierar tydliga klasser med dedikerade instansvariabler för olika typer av träningsdata, exempelvis `WoInst` (rad 142) och `BioData` (rad 185).
-* **Instantiering:** Jag anropar klasserna jag definierat - ett renodlat exempel på detta finns på rad 505, men förekommer även på olika ställen i klassmetoderna, såsom i `PeriodStats.unpack_objs()` (rad 384 och framåt). Utöver detta så har jag definierade klassmetoder som kan skapa objekt dynamiskt, exempelvis `unpack_obj()` (rad 34), där funktionen själv skapar en instans av rätt subklasstyp av `DbObject` utifrån vilka nyckelord dictionary:n (objektet) innehåller.
+* **Instansiering:** Jag anropar klasserna jag definierat - ett renodlat exempel på detta finns på rad 505, men förekommer även på olika ställen i klassmetoderna, såsom i `PeriodStats.unpack_objs()` (rad 384 och framåt). Utöver detta så har jag definierade klassmetoder som kan skapa objekt dynamiskt, exempelvis `unpack_obj()` (rad 34), där funktionen själv skapar en instans av rätt subklasstyp av `DbObject` utifrån vilka nyckelord dictionary:n (objektet) innehåller.
 
 ### 2. Inkapsling
 * **Privata variabler:** Egentligen så används ju inte privata variabler i Python på riktigt samma sätt som exempelvis i Java, men Pythons närmaste motsvarighet, variabler med understreck, demonstreras i min klass `WoInst` (rad 142 och framåt). Här döljs instansvariabeln `_instDatetime` från extern åtkomst, och setter-metoden (rad 162) blir det enda sättet `_instDatetime` kan modifieras. Detta säkerställer att rätt datatyp alltid lagras i objektet, vilket är särskilt viktigt då det rör sig om en tidsstämpel som förekommer som både en isosträng och ett datetime-objekt beroende på var datan hämtas från (från databasen, från Garmin-API:n osv).
@@ -23,13 +23,13 @@ Arv används genomgående för att skapa en struktur som är kompatibel med de �
 
 ### 4. Polymorfism
 I min kod används polymorfism för att låta metoder hantera objekt oberoende av deras specifika subklass:
-* **Dynamisk hantering:** Metoden `unpack_obj()` (rad 34) i superklassen tar en dictionary och loopar igenom alla subklasser (`cls.__subclasses__()`). Den kan därmed identifiera vilken typ av objekt det rör sig om och returnera rätt typ av objekt (t.ex. ett `WoInst`- eller `BioData`-objekt) genom samma funktion.
+* **Dynamisk hantering:** Metoden `unpack_obj()` (rad 34) i superklassen tar en dictionary och loopar igenom alla subklasser (`cls.__subclasses__()`). Den kan därmed identifiera vilken typ av objekt det rör sig om och returnera rätt typ av objekt (exempelvis ett `WoInst`- eller `BioData`-objekt) genom samma funktion.
 * **Objektjämförelse:** Metoden `compare_objs()` (rad 78) låter vilket objekt som helst jämföras med ett annat (`other`). Beroende på vilka två specifika typer av subklasser som möts, anpassar funktionen automatiskt sin logik för hur jämförelsen ska gå till (där den jämför olika attribut beroende på vilka objekttyper som jämförs - exempelvis så jämförs ett `BioData`-objekt och ett `WoInst`-objekt genom det gemensamma attributet `instId`.)  
 
 ### 5. Abstrakta klasser och gränssnitt
 Även om formella `ABC`-moduler inte importeras i skriptet så använder jag samma typ av principer för abstrakta klasser och gränssnitt (vilket är lite mer naturligt eftersom det i detta fallet rör sig om Python).
 
-`DbObject` agerar som en abstrakt modell för hantering av datan. Klassen är inte avsedd att instantieras som ett objekt utan som en fast struktur på vilken att bygga subklasserna. I och med att de mer specifika datamodellerna ärver från `DbObject` så säkerställs att alla objekten kan hanteras på ett liknande sätt, till exempel så har alla subklasserna tillgång till `to_dict()` (rad 60) och `update_attr()` (rad 67) oavsett vilken tabell raden tillhör.
+`DbObject` agerar som en abstrakt modell för hantering av datan. Klassen är inte avsedd att instansieras som ett objekt utan som en fast struktur på vilken att bygga subklasserna. I och med att de mer specifika datamodellerna ärver från `DbObject` så säkerställs att alla objekten kan hanteras på ett liknande sätt, till exempel så har alla subklasserna tillgång till `to_dict()` (rad 60) och `update_attr()` (rad 67) oavsett vilken tabell raden tillhör.
 
 ### 6. Objektinteraktion
 Systemet bygger på att fristående objekt samverkar och utbyter information för att utföra komplexa uppgifter. Exempel:
